@@ -98,8 +98,15 @@ queue.add(request);
 | Method           | Endpoint                   | Description               |
 | ---------------- | -------------------------- | ------------------------- |
 | **POST**   | `/api/notifications`     | Create a new notification |
-| **GET**    | `/api/notifications`     | Get all notifications     |
-| **DELETE** | `/api/notifications/:id` | Delete a notification     |
+
+---
+
+## **POST API Endpoints**
+
+| Key           | Value                   | 
+| ---------------- | -------------------------- |
+| `notificationName`    |      Test 1                    |
+| `notificationDesc`    |    This is a Test notification |
 
 ---
 
