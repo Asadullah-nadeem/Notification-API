@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-inter antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex justify-between items-center shadow-lg sticky top-0 z-50">
+        <h1 class="text-2xl font-bold tracking-tight">My Notifications</h1>
+        <ul class="flex space-x-8 items-center">
+            <li><a href="#" class="hover:text-blue-200 transition-colors duration-200">Home</a></li>
+            <li><a href="#about" class="hover:text-blue-200 transition-colors duration-200">About</a></li>
+            <li><a href="#team" class="hover:text-blue-200 transition-colors duration-200">Team</a></li>
+            <li><a href="#contact" class="hover:text-blue-200 transition-colors duration-200">Contact</a></li>
+            <!-- Notification Icon -->
+            <li class="relative">
+                <button id="notificationButton" class="relative focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14V11a6 6 0 10-12 0v3c0 .386-.149.735-.405 1.005L4 17h5m6 0a3 3 0 11-6 0" />
+                    </svg>
+                    <span id="notificationCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full hidden">0</span>
+                </button>
+                <!-- Notification Dropdown -->
+                <div id="notificationDropdown" class="absolute right-0 mt-3 w-80 bg-white shadow-xl rounded-xl hidden overflow-hidden transition-all duration-300">
+                    <div class="p-4 text-gray-800 border-b bg-gray-50">
+                        <h3 class="text-lg font-semibold">Notifications</h3>
+                    </div>
+                    <div id="notificationList" class="max-h-64 overflow-y-auto text-sm text-gray-700"></div>
+                    <div class="p-3 text-center text-gray-500 text-xs">End of notifications</div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content (Optional Placeholder) -->
+    <main class="container mx-auto py-10 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Your Notifications</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Stay updated with real-time alerts and never miss an important update.</p>
+    </main>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-5 right-5 space-y-4 z-50 max-w-md"></div>
+
+    <script>
+        function getCookie(name) {
+            let cookies = document.cookie.split('; ');
+            for (let cookie of cookies) {
+                let [key, value] = cookie.split('=');
+                if (key === name) return value;
+            }
+            return "";
+        }
+        
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + value + expires + "; path=/";
+        }
+        
+        async function fetchNotifications() {
+            try {
+                const response = await fetch('http://localhost:3000/api/notifications');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById("notificationList").innerHTML = "";
+                    document.getElementById("notificationCount").textContent = data.data.length;
+                    document.getElementById("notificationCount").classList.toggle("hidden", data.data.length === 0);
+                    
+                    let seenNotifications = getCookie("seenNotifications").split(',').filter(Boolean);
+
+                    data.data.forEach(notification => {
+                        if (!seenNotifications.includes(notification.id.toString())) {
+                            showNotification(notification);
+                        }
+                        addNotificationToDropdown(notification);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function showNotification(notification) {
+            const container = document.getElementById('notificationContainer');
+            const popup = document.createElement('div');
+            popup.className = 'bg-white shadow-xl p-4 rounded-lg flex items-start space-x-4 transition-all duration-300 transform translate-x-20 opacity-0 animate-slideIn hover:shadow-2xl';
+            popup.innerHTML = `
+                <div class="bg-indigo-500 text-white p-2 rounded-full flex-shrink-0">
+                    <h4 class="font-bold">N</h4>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">${notification.notificationName}</h3>
+                    <p class="text-sm text-gray-600">${notification.notificationDesc}</p>
+                    <span class="text-xs text-gray-400">${new Date(notification.createdAt).toLocaleString()}</span>
+                </div>
+                <button class="text-gray-400 hover:text-red-500 transition-colors duration-200" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => popup.remove(), 300);
+            }, 5000);
+
+            let seenNotifications = getCookie("seenNotifications").split(',').filter(Boolean);
+            seenNotifications.push(notification.id);
+            setCookie("seenNotifications", seenNotifications.join(','), 1);
+        }
+
+        function addNotificationToDropdown(notification) {
+            const list = document.getElementById("notificationList");
+            const item = document.createElement("div");
+            item.className = "p-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-150";
+            item.innerHTML = `
+                <strong class="text-gray-800">${notification.notificationName}</strong>
+                <p class="text-sm text-gray-600">${notification.notificationDesc}</p>
+                <span class="text-xs text-gray-400">${new Date(notification.createdAt).toLocaleTimeString()}</span>
+            `;
+            list.appendChild(item);
+        }
+
+        document.getElementById("notificationButton").addEventListener("click", () => {
+            const dropdown = document.getElementById("notificationDropdown");
+            dropdown.classList.toggle("hidden");
+            if (!dropdown.classList.contains("hidden")) {
+                dropdown.classList.add("scale-100");
+            } else {
+                dropdown.classList.remove("scale-100");
+            }
+        });
+
+        fetchNotifications();
+        setInterval(fetchNotifications, 10000);
+    </script>
+
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slideIn { animation: slideIn 0.5s ease-out forwards; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+    </style>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center p-6 mt-10">
+        <p class="text-sm">© 2025 My Website. All Rights Reserved.</p>
+        <div class="mt-2 space-x-4">
+            <a href="#" class="hover:text-blue-200 transition-colors duration-200">Privacy Policy</a>
+            <a href="#" class="hover:text-blue-200 transition-colors duration-200">Terms of Service</a>
+        </div>
+    </footer>
+</body>
+</html>
