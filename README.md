@@ -134,14 +134,10 @@ const notificationSchema = new mongoose.Schema({
 2. **Run the backend** (`node index.js`)
 3. **Run the Android app** and test API calls.
 
+---
 
-### **Note:**
-
-- Make sure all **image files (1.png to 7.png)** are in the same directory as the README.
-- If hosting on GitHub, place images inside a `/images` folder and update the paths like:
-
-  ```md
-
+### **Image:**
+  
 ![1](https://github.com/user-attachments/assets/fe79a8bf-6411-42f0-94c5-f46ddb6dc4e8)
 ![7](https://github.com/user-attachments/assets/05990b70-48ed-4a6d-98b2-f0fde63aa217)
 ![6](https://github.com/user-attachments/assets/0d215e51-ddc0-4f65-8e2c-38f44450858a)
@@ -149,6 +145,4 @@ const notificationSchema = new mongoose.Schema({
 ![4](https://github.com/user-attachments/assets/131745da-db5d-40c8-aa73-2ab24211b4ff)
 ![3](https://github.com/user-attachments/assets/5d44467f-8361-402f-8c5c-b065ffaaa319)
 ![2](https://github.com/user-attachments/assets/9f53f659-b0a0-41e4-91eb-22fc7e876025)
-
-
-  ```
+  
