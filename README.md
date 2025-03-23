@@ -77,7 +77,7 @@ dependencies {
 
 ### **2️⃣ Make an API Request with Volley**
 
-Example  **Volley request** :
+Example  **Volley request** :https://google.github.io/volley/simple.html
 
 ```java
 final TextView textView = (TextView) findViewById(R.id.text);
